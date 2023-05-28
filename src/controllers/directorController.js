@@ -1,5 +1,4 @@
-const app = require("../app");
-const connection = app.connection;
+const connection = require("../db");
 
 const addMovie = async (req, res) => {
   res.send("this adds movies for directors");
