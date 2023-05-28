@@ -3,7 +3,7 @@ const connection = require("../db");
 const addMovie = async (req, res) => {
   const { username, movieId, movieName, theatreId, timeSlot, duration, date } =
     req.body;
-  let sessionIdBase = date + "_";
+  let sessionIdBase = date + "_" + theatreId + "_";
   try {
     const [genreRows, genreFields] = await connection.query(
       "SELECT * FROM Movie_Genres WHERE movie_id=?",
@@ -35,7 +35,18 @@ const addMovie = async (req, res) => {
   }
 };
 const addPredecessor = async (req, res) => {
-  res.send("this adds movie predecessor");
+  const successor = req.body.successor;
+  const predecessor = req.body.predecessor;
+  try {
+    await connection.query(
+      "INSERT INTO Successor_Of (successor_id,predecessor_id) VALUES(?,?)",
+      [successor, predecessor]
+    );
+
+    res.send("Predecessor Added");
+  } catch (err) {
+    res.status(500).send("Either duplicate entry or movie does not exists");
+  }
 };
 
 module.exports = { addMovie, addPredecessor };
