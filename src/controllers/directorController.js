@@ -3,7 +3,7 @@ const connection = require("../db");
 const addMovie = async (req, res) => {
   const { username, movieId, movieName, theatreId, timeSlot, duration, date } =
     req.body;
-  let sessionIdBase = date + "_" + theatreId + "_";
+  let sessionId = date + "_" + theatreId + "_" + timeSlot;
   try {
     const [genreRows, genreFields] = await connection.query(
       "SELECT * FROM Movie_Genres WHERE movie_id=?",
@@ -18,10 +18,15 @@ const addMovie = async (req, res) => {
       "INSERT INTO Movies (movie_id,movie_name,duration,director_username) SELECT ?,?,?,? WHERE NOT EXISTS (SELECT movie_id FROM Movies WHERE movie_id=?)";
     await connection.beginTransaction();
     await connection.query(firstQuery, [...sqlParamsForTransaction, movieId]);
+    await connection.query("INSERT INTO Movie_Sessions VALUES(?,?,?)", [
+      sessionId,
+      movieId,
+      timeSlot,
+    ]);
     for (let i = 0; i < duration; i++) {
       await connection.query(
-        "INSERT INTO Movie_Sessions (session_id,session_date,time_slot,theatre_id,movie_id) VALUES(?,?,?,?,?)",
-        [sessionIdBase + (timeSlot + i), date, timeSlot + i, theatreId, movieId]
+        "INSERT INTO Session_Reservations (session_id,session_date,time_slot,theatre_id) VALUES(?,?,?,?)",
+        [sessionId, date, timeSlot + i, theatreId]
       );
     }
     await connection.commit();
