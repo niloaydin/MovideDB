@@ -98,7 +98,6 @@ const buyTicket = async (req, res) => {
       "INSERT INTO Audience_Tickets SELECT ?,? WHERE (SELECT platform_id FROM Movie_Sessions INNER JOIN Movies ON Movie_Sessions.movie_id=Movies.movie_id INNER JOIN Directors ON Movies.director_username=Directors.username WHERE Movie_Sessions.session_id=?) IN (SELECT platform_id FROM Audience_Subscribed WHERE Audience_Subscribed.username=?)",
       [username, sessionId, sessionId, username]
     );
-    console.log(insertRow);
 
     if (insertRow.affectedRows) {
       res.send("Ticket Bought");
@@ -112,7 +111,28 @@ const buyTicket = async (req, res) => {
   }
 };
 const viewTickets = async (req, res) => {
-  res.send("this views ticket");
+  const sessionId = req.body.sessionId;
+  const username = req.body.username;
+  try {
+    const [prevMovRows, prevMovFields] = await connection.query(
+      "SELECT Movies.movie_id, Movies.movie_name, Audience_Tickets.session_id, rating, overall_rating FROM Audience_Tickets INNER JOIN Movie_Sessions ON Audience_Tickets.session_id=Movie_Sessions.session_id INNER JOIN Movies ON Movies.movie_id=Movie_Sessions.movie_id LEFT JOIN Ratings ON Movies.movie_id=Ratings.movie_id WHERE Audience_Tickets.username=?",
+      [username]
+    );
+
+    const [currentMovRow, currentMovField] = await connection.query(
+      "SELECT Movies.movie_id, Movies.movie_name, session_id, rating, overall_rating FROM Movie_Sessions INNER JOIN Movies ON Movies.movie_id=Movie_Sessions.movie_id LEFT JOIN Ratings ON Movies.movie_id=Ratings.movie_id WHERE session_id=?",
+      [sessionId]
+    );
+    if (!currentMovRow.length)
+      throw new Error("No movie found with that session Id, please check");
+    const respBody = {
+      currentMovie: currentMovRow[0],
+      previouslyWatched: prevMovRows,
+    };
+    res.send(respBody);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 };
 
 module.exports = { listMovies, buyTicket, viewTickets };
