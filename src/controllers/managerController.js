@@ -1,5 +1,5 @@
+const { connect } = require("../db");
 const connection = require("../db");
-
 
 const addAudience = async (req, res) => {
   try {
@@ -129,12 +129,12 @@ const updatePlatformOfDirector = async (req, res) => {
 };
 
 const showDirectors = async (req, res) => {
-
   try {
     const getDirectorsQuery =
       "SELECT username, firstName, lastName, nation, platform_id FROM Directors";
 
     const [getDirectorsResult] = await connection.query(getDirectorsQuery);
+    console.log("getDirectorsResult ", getDirectorsResult);
 
     res.send(getDirectorsResult);
   } catch (err) {
@@ -143,7 +143,21 @@ const showDirectors = async (req, res) => {
   }
 };
 const showRatingsOfAudience = async (req, res) => {
-  res.send("done");
+  try {
+    const audience = req.query.username;
+
+    const getRatingsQuery =
+      "SELECT m.movie_id, m.movie_name, r.rating FROM Ratings r JOIN Movies m ON r.movie_id = m.movie_id JOIN Audience a ON r.username = a.username WHERE a.username = ?";
+
+    const [getQueryResult] = await connection.query(getRatingsQuery, [
+      audience,
+    ]);
+
+    res.send(getQueryResult);
+  } catch (err) {
+    console.error("Error showing ratings of audience", err);
+    res.status(500).send(err.message);
+  }
 };
 /** @type {import("express").RequestHandler} */
 const showDirectorMovies = async (req, res) => {
