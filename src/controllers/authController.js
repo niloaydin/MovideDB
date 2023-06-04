@@ -18,6 +18,9 @@ const login = async (req, res) => {
         break;
     }
     let [rows, fields] = await connection.query(queryString, [username]);
+
+    if (!rows.length) throw new Error("No such User");
+
     const password = rows[0].pswrd;
     if (password === req.body.password) {
       res.send("Success");

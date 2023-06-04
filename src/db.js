@@ -7,5 +7,4 @@ const connection = mysql
     database: "movieDb",
   })
   .promise();
-
 module.exports = connection;
