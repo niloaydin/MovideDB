@@ -44,3 +44,34 @@ To ensure Node.js is installed correctly, open your command prompt or terminal a
 ```bash
 node -v
 ```
+
+## Getting Started
+
+After installing Node.js and cloning the repository on your machine, follow these steps to set up and run the project:
+
+1. Open a terminal or command prompt and navigate to the project directory.
+
+2. Run the following command to install the project dependencies:
+
+   ```bash
+   npm install
+   ```
+
+   This command will read the package.json file and install all the required packages and dependencies for the project.
+
+3. Once the installation is complete, you need to configure the `db.js` file with your local MySQL username, password, and database name. Locate the `db.js` file in the project directory and update the appropriate fields with your MySQL configuration.
+
+4. After configuring the database, you can start the server by running the following command:
+
+```bash
+ npm start
+```
+
+This command will start the server, and it will listen on port 3000 by default.
+
+> **Note:** If port 3000 is already occupied by another project, you have two options:
+>
+> - Stop the other project running on Port 3000 and start this project.
+> - Change the port number by modifying the `app.js` file. Locate the `app.js` file in the project directory and find the line of code where the server is listening on port 3000. Modify the port number to an available port of your choice.
+
+5. Once the server is running, you can access the project by opening a web browser and navigating to [http://localhost:3000](http://localhost:3000).
