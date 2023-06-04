@@ -146,6 +146,13 @@ const showRatingsOfAudience = async (req, res) => {
   try {
     const audience = req.query.username;
 
+    const checkAudienceExist = "SELECT * FROM Audience WHERE username = ?";
+    const [getCheckAudienceExist] = await connection.query(checkAudienceExist, [
+      audience,
+    ]);
+    if (getCheckAudienceExist.length === 0) {
+      throw new Error("There is no user with that username");
+    }
     const getRatingsQuery =
       "SELECT m.movie_id, m.movie_name, r.rating FROM Ratings r JOIN Movies m ON r.movie_id = m.movie_id JOIN Audience a ON r.username = a.username WHERE a.username = ?";
 
@@ -153,7 +160,10 @@ const showRatingsOfAudience = async (req, res) => {
       audience,
     ]);
 
-    res.send(getQueryResult);
+    if (getQueryResult.length === 0) {
+      throw new Error("This user has no ratings");
+    }
+    res.send(getQueryResult.map((obj) => obj.rating));
   } catch (err) {
     console.error("Error showing ratings of audience", err);
     res.status(500).send(err.message);
@@ -164,9 +174,12 @@ const showDirectorMovies = async (req, res) => {
   try {
     const director = req.query.username;
     let [rows, fields] = await connection.query(
+
       "SELECT Movies.movie_id,movie_name,Theatres.theatre_id,theatre_district,Movie_Sessions.time_slot FROM Movie_Sessions INNER JOIN Session_Reservations ON Movie_Sessions.session_id=Session_Reservations.session_id AND Movie_Sessions.time_slot=Session_Reservations.time_slot  INNER JOIN Movies ON Movie_Sessions.movie_id=Movies.movie_id INNER JOIN Theatres ON Session_Reservations.theatre_id=Theatres.theatre_id WHERE Movies.director_username=?",
+
       [director]
     );
+    console.log("BAKALIM ", rows);
     if (!rows.length) throw new Error("No movies found");
     res.send(rows);
   } catch (err) {
@@ -177,11 +190,11 @@ const showAverageRating = async (req, res) => {
   try {
     const movieId = req.query.movieId;
     let [rows, fields] = await connection.query(
-      "SELECT overall_rating from Movies WHERE movie_id=?",
+      "SELECT movie_id, movie_name, overall_rating from Movies WHERE movie_id=?",
       [movieId]
     );
     console.log(rows);
-    let overallRating = rows[0]?.["overall_rating"];
+    let overallRating = rows[0];
     console.log(overallRating);
     if (overallRating === null || overallRating === undefined)
       throw new Error(
