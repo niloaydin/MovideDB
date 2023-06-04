@@ -1,4 +1,3 @@
-
 const { connect } = require("../db");
 const connection = require("../db");
 
@@ -165,7 +164,7 @@ const showDirectorMovies = async (req, res) => {
   try {
     const director = req.query.username;
     let [rows, fields] = await connection.query(
-      "SELECT Movies.movie_id,movie_name,Theatres.theatre_id,theatre_district,time_slot FROM Movie_Sessions INNER JOIN Movies ON Movie_Sessions.movie_id=Movies.movie_id INNER JOIN Theatres ON Movie_Sessions.theatre_id=Theatres.theatre_id WHERE Movies.director_username=?",
+      "SELECT Movies.movie_id,movie_name,Theatres.theatre_id,theatre_district,Movie_Sessions.time_slot FROM Movie_Sessions INNER JOIN Session_Reservations ON Movie_Sessions.session_id=Session_Reservations.session_id AND Movie_Sessions.time_slot=Session_Reservations.time_slot  INNER JOIN Movies ON Movie_Sessions.movie_id=Movies.movie_id INNER JOIN Theatres ON Session_Reservations.theatre_id=Theatres.theatre_id WHERE Movies.director_username=?",
       [director]
     );
     if (!rows.length) throw new Error("No movies found");

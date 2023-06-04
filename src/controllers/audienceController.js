@@ -103,7 +103,7 @@ const buyTicket = async (req, res) => {
       res.send("Ticket Bought");
     } else {
       throw new Error(
-        "You probably need to subscribe to the relevant movie platform"
+        "You need to subscribe to the relevant movie platform or session does not exist"
       );
     }
   } catch (err) {
@@ -123,8 +123,8 @@ const viewTickets = async (req, res) => {
       "SELECT Movies.movie_id, Movies.movie_name, session_id, rating, overall_rating FROM Movie_Sessions INNER JOIN Movies ON Movies.movie_id=Movie_Sessions.movie_id LEFT JOIN Ratings ON Movies.movie_id=Ratings.movie_id WHERE session_id=?",
       [sessionId]
     );
-    if (!currentMovRow.length)
-      throw new Error("No movie found with that session Id, please check");
+    //if (!currentMovRow.length)
+    //throw new Error("No movie found with that session Id, please check");
     const respBody = {
       currentMovie: currentMovRow[0],
       previouslyWatched: prevMovRows,
